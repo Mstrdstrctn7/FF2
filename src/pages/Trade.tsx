@@ -4,89 +4,64 @@ import axios from "axios";
 export default function Trade() {
   const [symbol, setSymbol] = useState("BTC_USDT");
   const [side, setSide] = useState("buy");
-  const [amount, setAmount] = useState("0.01");
-  const [mode, setMode] = useState("paper"); // paper or live
-  const [message, setMessage] = useState("");
+  const [amount, setAmount] = useState("10");
+  const [status, setStatus] = useState("");
 
   const handleTrade = async () => {
+    setStatus("Placing order...");
     try {
       const response = await axios.post("/.netlify/functions/trade", {
         symbol,
         side,
         amount,
-        mode,
       });
-
-      if (response.data.success) {
-        setMessage("✅ Trade placed successfully.");
-      } else {
-        setMessage(`❌ ${response.data.message}`);
-      }
+      setStatus(`✅ Success: ${response.data.status}`);
     } catch (err: any) {
-      setMessage(`❌ Trade failed: ${err.message}`);
+      console.error(err);
+      setStatus("❌ Error placing trade.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-6">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-6 text-center">⚔️ Trade Arena</h1>
-      <div className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-6 flex flex-col items-center">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-4">💱 Execute Trade</h1>
+      <div className="bg-gray-800 p-4 rounded shadow-md w-full max-w-sm space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Coin Pair</label>
-          <select
+          <label className="block mb-1 text-sm">Symbol</label>
+          <input
+            className="w-full p-2 rounded bg-gray-900 text-white"
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
-            className="w-full bg-gray-700 border-none rounded p-2 text-white"
-          >
-            <option value="BTC_USDT">BTC / USDT</option>
-            <option value="ETH_USDT">ETH / USDT</option>
-            <option value="SOL_USDT">SOL / USDT</option>
-          </select>
+            placeholder="e.g., BTC_USDT"
+          />
         </div>
-
         <div>
-          <label className="block text-sm font-medium mb-1">Trade Type</label>
+          <label className="block mb-1 text-sm">Side</label>
           <select
+            className="w-full p-2 rounded bg-gray-900 text-white"
             value={side}
             onChange={(e) => setSide(e.target.value)}
-            className="w-full bg-gray-700 border-none rounded p-2 text-white"
           >
             <option value="buy">Buy</option>
             <option value="sell">Sell</option>
           </select>
         </div>
-
         <div>
-          <label className="block text-sm font-medium mb-1">Amount</label>
+          <label className="block mb-1 text-sm">Amount (USD)</label>
           <input
-            type="text"
+            className="w-full p-2 rounded bg-gray-900 text-white"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full bg-gray-700 border-none rounded p-2 text-white"
-            placeholder="e.g. 0.01"
+            placeholder="e.g., 50"
           />
         </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Mode</label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-            className="w-full bg-gray-700 border-none rounded p-2 text-white"
-          >
-            <option value="paper">Paper</option>
-            <option value="live">Live</option>
-          </select>
-        </div>
-
         <button
+          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full"
           onClick={handleTrade}
-          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded mt-4 transition-all duration-200"
         >
-          Submit Trade
+          {side === "buy" ? "Buy 🔼" : "Sell 🔽"}
         </button>
-
-        {message && <p className="mt-4 text-sm text-center">{message}</p>}
+        {status && <p className="text-sm text-center mt-2">{status}</p>}
       </div>
     </div>
   );
