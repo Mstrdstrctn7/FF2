@@ -4,7 +4,8 @@ import axios from "axios";
 export default function Trade() {
   const [symbol, setSymbol] = useState("BTC_USDT");
   const [side, setSide] = useState("buy");
-  const [amount, setAmount] = useState(10);
+  const [amount, setAmount] = useState("0.01");
+  const [mode, setMode] = useState("paper"); // paper or live
   const [message, setMessage] = useState("");
 
   const handleTrade = async () => {
@@ -13,35 +14,42 @@ export default function Trade() {
         symbol,
         side,
         amount,
+        mode,
       });
-      setMessage(response.data.message || "Trade executed.");
-    } catch (error: any) {
-      console.error("Trade error:", error);
-      setMessage("Trade failed.");
+
+      if (response.data.success) {
+        setMessage("✅ Trade placed successfully.");
+      } else {
+        setMessage(`❌ ${response.data.message}`);
+      }
+    } catch (err: any) {
+      setMessage(`❌ Trade failed: ${err.message}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white flex flex-col items-center justify-center px-4">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-6">⚔️ Execute Trade</h1>
-
-      <div className="space-y-4 w-full max-w-sm">
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white p-6">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-6 text-center">⚔️ Trade Arena</h1>
+      <div className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg space-y-4">
         <div>
-          <label className="block mb-1 text-gray-300">Symbol</label>
-          <input
-            className="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white"
+          <label className="block text-sm font-medium mb-1">Coin Pair</label>
+          <select
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
-            placeholder="BTC_USDT"
-          />
+            className="w-full bg-gray-700 border-none rounded p-2 text-white"
+          >
+            <option value="BTC_USDT">BTC / USDT</option>
+            <option value="ETH_USDT">ETH / USDT</option>
+            <option value="SOL_USDT">SOL / USDT</option>
+          </select>
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-300">Side</label>
+          <label className="block text-sm font-medium mb-1">Trade Type</label>
           <select
-            className="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white"
             value={side}
             onChange={(e) => setSide(e.target.value)}
+            className="w-full bg-gray-700 border-none rounded p-2 text-white"
           >
             <option value="buy">Buy</option>
             <option value="sell">Sell</option>
@@ -49,23 +57,36 @@ export default function Trade() {
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-300">Amount (USDT)</label>
+          <label className="block text-sm font-medium mb-1">Amount</label>
           <input
-            className="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white"
-            type="number"
+            type="text"
             value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full bg-gray-700 border-none rounded p-2 text-white"
+            placeholder="e.g. 0.01"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Mode</label>
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value)}
+            className="w-full bg-gray-700 border-none rounded p-2 text-white"
+          >
+            <option value="paper">Paper</option>
+            <option value="live">Live</option>
+          </select>
         </div>
 
         <button
           onClick={handleTrade}
-          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full"
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded mt-4 transition-all duration-200"
         >
-          Trade Now
+          Submit Trade
         </button>
 
-        {message && <p className="text-yellow-300 mt-4">{message}</p>}
+        {message && <p className="mt-4 text-sm text-center">{message}</p>}
       </div>
     </div>
   );
